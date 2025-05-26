@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Identification des notes</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
+      background: #f9f9f9;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+
+    .note-label {
+      font-size: 1.3em;
+      margin-bottom: 1em;
+    }
+
+    .feedback {
+      height: 1.5em;
+      margin-top: 0.5em;
+      font-size: 1.2em;
+    }
+
+    .keyboard {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      height: 200px;
+      margin: 2em auto;
+    }
+
+    .white-key, .black-key {
+      position: absolute;
+      bottom: 0;
+      border: 1px solid #333;
+      cursor: pointer;
+      font-size: 0.75em;
+      font-weight: bold;
+      text-align: center;
+      user-select: none;
+    }
+
+    .white-key {
+      width: 14.28%;
+      height: 200px;
+      background: white;
+      z-index: 1;
+    }
+
+    .black-key {
+      width: 9%;
+      height: 120px;
+      background: black;
+      color: white;
+      z-index: 2;
+    }
+
+    .white-key.correct { background-color: #a8e6a3; }
+    .white-key.wrong { background-color: #f6a3a3; }
+    .black-key.correct { background-color: #4CAF50; }
+    .black-key.wrong { background-color: #f44336; }
+
+    @media (max-width: 600px) {
+      .keyboard {
+        height: 140px;
+      }
+      .white-key { height: 140px; font-size: 0.6em; }
+      .black-key { height: 90px; font-size: 0.6em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Identification des notes (notation française)</h1>
+  <div class="note-label" id="note-to-find"></div>
+  <div class="keyboard" id="keyboard"></div>
+  <div class="feedback" id="feedback"></div>
+
+  <script>
+    const notes = [
+      { note: "Do", pos: 0 },
+      { note: "Do#", pos: 10 },
+      { note: "Ré", pos: 14.28 },
+      { note: "Ré#", pos: 24.28 },
+      { note: "Mi", pos: 28.56 },
+      { note: "Fa", pos: 42.84 },
+      { note: "Fa#", pos: 52.84 },
+      { note: "Sol", pos: 57.12 },
+      { note: "Sol#", pos: 67.12 },
+      { note: "La", pos: 71.4 },
+      { note: "La#", pos: 81.4 },
+      { note: "Si", pos: 85.68 },
+    ];
+
+    const whiteNotes = ["Do", "Ré", "Mi", "Fa", "Sol", "La", "Si"];
+
+    const keyboard = document.getElementById("keyboard");
+    const noteToFindEl = document.getElementById("note-to-find");
+    const feedback = document.getElementById("feedback");
+
+    let currentNote = "";
+
+    function clearKeys() {
+      document.querySelectorAll(".white-key, .black-key").forEach(k => {
+        k.classList.remove("correct", "wrong");
+      });
+    }
+
+    function pickRandomNote() {
+      const whiteOnly = notes.filter(n => whiteNotes.includes(n.note));
+      const random = whiteOnly[Math.floor(Math.random() * whiteOnly.length)];
+      currentNote = random.note;
+      noteToFindEl.textContent = `Clique sur : ${currentNote}`;
+      feedback.textContent = "";
+      clearKeys();
+    }
+
+    function createKey(noteObj) {
+      const key = document.createElement("div");
+      const isBlack = noteObj.note.includes("#");
+      key.classList.add(isBlack ? "black-key" : "white-key");
+      key.style.left = noteObj.pos + "%";
+      key.textContent = noteObj.note;
+      key.onclick = () => {
+        if (noteObj.note === currentNote) {
+          key.classList.add("correct");
+          feedback.textContent = "Correct !";
+          setTimeout(pickRandomNote, 1000);
+        } else {
+          key.classList.add("wrong");
+          feedback.textContent = "Non, essaie encore...";
+        }
+      };
+      keyboard.appendChild(key);
+    }
+
+    function buildKeyboard() {
+      notes.forEach(noteObj => createKey(noteObj));
+    }
+
+    buildKeyboard();
+    pickRandomNote();
+  </script>
+</body>
+</html>
